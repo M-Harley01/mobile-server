@@ -1,0 +1,25 @@
+//dataBase.txt
+
+username: user
+password: password
+colleagueID: 123456
+ContactNo: 01382111111
+position: Home Delivery
+location: Dundee
+Holidays: 28 
+
+username: bob
+password: bobPassword
+colleagueID: 124567
+ContactNo: 01382222222
+position: Home Delivery
+location: Dundee
+Holidays: 19
+
+username: alice
+password: alicePassword
+colleagueID: 125678
+ContactNo: 01382333333
+position: Home Delivery
+location: Aberdeen
+Holidays: 15
