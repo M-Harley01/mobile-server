@@ -1,0 +1,124 @@
+[
+    {
+        "colleagueID": "#123456",
+        "January": [
+            {
+                "date": "17/01/2025",
+                "time": "10:00 - 15:00",
+                "about": "Home Delivery Shift"
+            },
+
+            {
+                "date": "18/01/2025",
+                "time": "9:00 - 17:00",
+                "about": "Checkout Shift"
+            },
+            
+            {
+                "date": "19/01/2025",
+                "time": "Not Scheduled",
+                "about": ""
+            },
+            {
+                "date": "20/01/2025",
+                "time": "14:00 - 22:00",
+                "about": "Shop Floor Shift"
+            },
+            {
+                "date": "21/01/2025",
+                "time": "9:00 - 17:00",
+                "about": "Checkout Shift"
+            }
+        ],
+        "February":[
+            {
+                "date": "17/01/2025",
+                "time": "10:00 - 15:00",
+                "about": "This is feb"
+            },
+
+            {
+                "date": "18/01/2025",
+                "time": "9:00 - 17:00",
+                "about": "This is feb"
+            },
+            
+            {
+                "date": "19/01/2025",
+                "time": "Not Scheduled",
+                "about": "This is feb"
+            },
+            {
+                "date": "20/01/2025",
+                "time": "14:00 - 22:00",
+                "about": "This is feb"
+            },
+            {
+                "date": "21/01/2025",
+                "time": "9:00 - 17:00",
+                "about": "This is feb"
+            }
+        ]
+        
+    },
+    {
+        "colleagueID": "#124567",
+        "schedule": [
+            {
+                "date": "17/02/2025",
+                "time": "10:00 - 15:00",
+                "about": "Home Delivery Shift"
+            },
+            {
+                "date": "18/02/2025",
+                "time": "9:00 - 17:00",
+                "about": "Checkout Shift"
+            },
+            {
+                "date": "19/02/2025",
+                "time": "Not Scheduled",
+                "about": ""
+            },
+            {
+                "date": "20/02/2025",
+                "time": "14:00 - 22:00",
+                "about": "Shop Floor Shift"
+            },
+            {
+                "date": "21/02/2025",
+                "time": "9:00 - 17:00",
+                "about": "Checkout Shift"
+            }
+        ]
+    },
+    {
+        "colleagueID": "#125678",
+        "schedule": [
+            {
+                "date": "17/02/2025",
+                "time": "10:00 - 15:00",
+                "about": "Home Delivery Shift"
+            },
+            {
+                "date": "18/02/2025",
+                "time": "9:00 - 17:00",
+                "about": "Checkout Shift"
+            },
+            {
+                "date": "19/02/2025",
+                "time": "Not Scheduled",
+                "about": ""
+            },
+            {
+                "date": "20/02/2025",
+                "time": "14:00 - 22:00",
+                "about": "Shop Floor Shift"
+            },
+            {
+                "date": "21/02/2025",
+                "time": "9:00 - 17:00",
+                "about": "Checkout Shift"
+            }
+        ]
+    }
+]

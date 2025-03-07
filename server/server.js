@@ -14,6 +14,27 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
+const rawData = fs.readFileSync("schedule.json");
+const schedules = JSON.parse(rawData);
+
+function getUserSchedule(colleagueID, month){
+  const user = schedules.find(user => user.colleagueID === colleagueID);
+  
+  if(!user){
+    console.log(`Nope not doing it`);
+    return null;
+  }
+
+  if(!user[month]){
+    console.log(`nah m8`);
+    return null;
+  }
+
+  return user[month];
+}
+
+console.log(JSON.stringify(getUserSchedule("#123456", "February"), null, 2));
+
 function readDatabase(){
   try {
     const data = fs.readFileSync("dataBase.txt", "utf8"); 
