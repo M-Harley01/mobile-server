@@ -6,6 +6,9 @@ const fs = require("fs");
 
 const colleagueIDs = []; 
 const passwords = [];
+const dayDates = [];
+const times = [];
+const types = [];
 const mappedDetails = new Map;
 
 const app = express();
@@ -21,19 +24,38 @@ function getUserSchedule(colleagueID, month){
   const user = schedules.find(user => user.colleagueID === colleagueID);
   
   if(!user){
-    console.log(`Nope not doing it`);
+    console.log(`couldn't find user ID`);
     return null;
   }
 
   if(!user[month]){
-    console.log(`nah m8`);
+    console.log(`Couldn't find month specified`);
     return null;
   }
 
   return user[month];
 }
 
-console.log(JSON.stringify(getUserSchedule("#123456", "February"), null, 2));
+function getScheduleDetails(userSchedule) {
+  userSchedule.forEach((entry) => {  
+
+    if (entry.date) { 
+      dayDates.push(entry.date);
+    }
+
+    if (entry.time) { 
+      times.push(entry.time);
+    }
+
+    if (entry.type) { 
+      types.push(entry.type);
+    }
+  });
+}
+
+const userSchedule = getUserSchedule("#123456", "February");
+
+getScheduleDetails(userSchedule);
 
 function readDatabase(){
   try {
@@ -56,8 +78,6 @@ function readDatabase(){
       }
     });
 
-    console.log("IDs found:", colleagueIDs);
-    console.log("passwords found", passwords);
   } catch (err) {
     console.error("Error reading file:", err);
   }
