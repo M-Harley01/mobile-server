@@ -3,58 +3,58 @@
         "colleagueID": "#123456",
         "January": [
             {
-                "date": "17/01/2025",
+                "date": "17/01",
                 "time": "10:00 - 15:00",
                 "type": "Home Delivery Shift"
             },
 
             {
-                "date": "18/01/2025",
+                "date": "18/01",
                 "time": "9:00 - 17:00",
                 "type": "Checkout Shift"
             },
             
             {
-                "date": "19/01/2025",
+                "date": "19/01",
                 "time": "Not Scheduled",
                 "type": ""
             },
             {
-                "date": "20/01/2025",
+                "date": "20/01",
                 "time": "14:00 - 22:00",
                 "type": "Shop Floor Shift"
             },
             {
-                "date": "21/01/2025",
+                "date": "21/01",
                 "time": "9:00 - 17:00",
                 "type": "Checkout Shift"
             }
         ],
         "February":[
             {
-                "date": "17/01/2025",
+                "date": "17/01",
                 "time": "10:00 - 15:00",
                 "type": "This is feb"
             },
 
             {
-                "date": "18/01/2025",
+                "date": "18/01",
                 "time": "9:00 - 17:00",
                 "type": "This is feb"
             },
             
             {
-                "date": "19/01/2025",
+                "date": "19/01",
                 "time": "Not Scheduled",
                 "type": "This is feb"
             },
             {
-                "date": "20/01/2025",
+                "date": "20/01",
                 "time": "14:00 - 22:00",
                 "type": "This is feb"
             },
             {
-                "date": "21/01/2025",
+                "date": "21/01",
                 "time": "9:00 - 17:00",
                 "type": "This is feb"
             }
@@ -66,27 +66,27 @@
         "colleagueID": "#124567",
         "January": [
             {
-                "date": "17/02/2025",
+                "date": "17/02",
                 "time": "10:00 - 15:00",
                 "type": "Home Delivery Shift"
             },
             {
-                "date": "18/02/2025",
+                "date": "18/02",
                 "time": "9:00 - 17:00",
                 "type": "Checkout Shift"
             },
             {
-                "date": "19/02/2025",
+                "date": "19/02",
                 "time": "Not Scheduled",
                 "type": ""
             },
             {
-                "date": "20/02/2025",
+                "date": "20/02",
                 "time": "14:00 - 22:00",
                 "type": "Shop Floor Shift"
             },
             {
-                "date": "21/02/2025",
+                "date": "21/02",
                 "time": "9:00 - 17:00",
                 "type": "Checkout Shift"
             }
@@ -97,27 +97,27 @@
         "colleagueID": "#125678",
         "February": [
             {
-                "date": "17/02/2025",
+                "date": "17/02",
                 "time": "10:00 - 15:00",
                 "type": "Home Delivery Shift"
             },
             {
-                "date": "18/02/2025",
+                "date": "18/02",
                 "time": "9:00 - 17:00",
                 "type": "Checkout Shift"
             },
             {
-                "date": "19/02/2025",
+                "date": "19/02",
                 "time": "Not Scheduled",
                 "type": ""
             },
             {
-                "date": "20/02/2025",
+                "date": "20/02",
                 "time": "14:00 - 22:00",
                 "type": "Shop Floor Shift"
             },
             {
-                "date": "21/02/2025",
+                "date": "21/02",
                 "time": "9:00 - 17:00",
                 "type": "Checkout Shift"
             }

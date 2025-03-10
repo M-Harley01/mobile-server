@@ -6,15 +6,19 @@ const fs = require("fs");
 
 const colleagueIDs = []; 
 const passwords = [];
-const dayDates = [];
-const times = [];
-const types = [];
 const mappedDetails = new Map;
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+const corsOptions = {
+  origin: "*", // Allow all origins (you can restrict this to specific origins)
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type",
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
 const rawData = fs.readFileSync("schedule.json");
@@ -53,9 +57,41 @@ function getScheduleDetails(userSchedule) {
   });
 }
 
-const userSchedule = getUserSchedule("#123456", "February");
+app.get("/api/schedule", (req, res) => {
+  let { colleagueID, month } = req.query;
 
-getScheduleDetails(userSchedule);
+  console.log(`Received request: colleagueID = ${colleagueID}, month = ${month}`);
+
+  if (!colleagueID || !month) {
+    console.log("Missing colleagueID or month");
+    return res.status(400).json({ success: false, message: "Missing colleagueID or month" });
+  }
+
+  if(!colleagueID.startsWith('#')){
+    colleagueID = `#${colleagueID}`;
+  }
+
+  const userSchedule = getUserSchedule(colleagueID, month);
+
+  if (!userSchedule) {
+    console.log(` No schedule found for colleagueID = ${colleagueID}, month = ${month}`);
+    return res.json({ success: false, message: "Schedule not found" });
+  }
+
+  const dayDates = userSchedule.map(entry => entry.date);
+  const times = userSchedule.map(entry => entry.time);
+  const types = userSchedule.map(entry => entry.type);
+
+  console.log("Found schedule:", { dayDates, times, types });
+
+  res.json({
+    success: true,
+    dayDates,
+    times,
+    types
+  });
+});
+
 
 function readDatabase(){
   try {
