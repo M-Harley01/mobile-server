@@ -111,18 +111,56 @@ function setMap(){
 readDatabase();
 setMap();
 
+let users = [];
+
+function readUserDetails(){
+
+  try{
+    const rawData = fs.readFileSync("users.json");
+    users = JSON.parse(rawData);
+    console.log("user data succesfully gatherered");
+  }catch(err){
+    console.log("user data unable to be loaded", err);
+  }
+}
+
+readUserDetails();
+
 //allows a user to log in
 app.post("/api/receive", (req, res) => {
-  const { text1, text2 } = req.body; 
+  const { colleagueID, password } = req.body; 
 
-   if (mappedDetails.has(text1) && mappedDetails.get(text1) === text2) {
-    console.log("User ID and password match");
-    res.json({ success: true }); 
-  } else {
-    console.log("Incorrect user ID or password");
-    res.json({ success: false, message: "Incorrect username or password" });
-  }
+    const user = users.find(user => user.colleagueID === colleagueID && user.password === password);
+
+    if (user) {
+      console.log("User credentials match");
+      res.json({ success: true});
+    } else {
+      console.log("Incorrect colleague ID or password");
+      res.json({ success: false, message: "Incorrect ID or password" });
+    }
 });
+
+app.get("/api/profile", (req,res) => {
+  const { colleagueID } = req.query;
+
+  const user = users.find(user => user.colleagueID === colleagueID);
+
+  if(user){
+    const responseData = {
+      success: true,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      contactNo: user.contactNo,
+      position: user.position,
+      location: user.location
+    };
+    console.log("Sending response:", responseData);
+    res.json(responseData);
+  }else{
+    res.json({ success: false, message: "User not found" });
+  }
+})
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

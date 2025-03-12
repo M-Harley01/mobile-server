@@ -1,0 +1,33 @@
+[
+    {
+      "firstName": "John",
+      "lastName": "Smith",
+      "password": "password",
+      "colleagueID": "123456",
+      "contactNo": "01382111111",
+      "position": "Home Delivery",
+      "location": "Dundee",
+      "holidays": 28
+    },
+    {
+      "firstName": "Bob",
+      "lastName": "Anderson",
+      "password": "bobPassword",
+      "colleagueID": "124567",
+      "contactNo": "01382222222",
+      "position": "Home Delivery",
+      "location": "Dundee",
+      "holidays": 19
+    },
+    {
+      "firstName": "Alice",
+      "lastName": "Thompson",
+      "password": "alicePassword",
+      "colleagueID": "125678",
+      "contactNo": "01382333333",
+      "position": "Home Delivery",
+      "location": "Aberdeen",
+      "holidays": 15
+    }
+  ]
+  
