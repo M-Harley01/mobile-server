@@ -40,23 +40,6 @@ function getUserSchedule(colleagueID, month){
   return user[month];
 }
 
-function getScheduleDetails(userSchedule) {
-  userSchedule.forEach((entry) => {  
-
-    if (entry.date) { 
-      dayDates.push(entry.date);
-    }
-
-    if (entry.time) { 
-      times.push(entry.time);
-    }
-
-    if (entry.type) { 
-      types.push(entry.type);
-    }
-  });
-}
-
 app.get("/api/schedule", (req, res) => {
   let { colleagueID, month } = req.query;
 
