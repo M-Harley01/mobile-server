@@ -12,7 +12,7 @@ const app = express();
 const PORT = 3000;
 
 const corsOptions = {
-  origin: "*", // Allow all origins (you can restrict this to specific origins)
+  origin: "*", 
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type",
 };
@@ -126,7 +126,6 @@ function readUserDetails(){
 
 readUserDetails();
 
-//allows a user to log in
 app.post("/api/receive", (req, res) => {
   const { colleagueID, password } = req.body; 
 
