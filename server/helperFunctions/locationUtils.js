@@ -2,38 +2,25 @@
 
 const axios = require("axios");
 
-let lat = null;
-let lon = null;
+var lat;
+var lon;
 
-async function getServerLocation() {
-  try {
-    const response = await axios.get("http://ip-api.com/json/");
-    lat = response.data.lat;
-    lon = response.data.lon;
-    console.log(`(Lat: ${lat}, Lon: ${lon})`);
-    return { lat, lon };
-  } catch (error) {
-    console.error("Error fetching server location:", error);
-  }
+function updateServerLocation(newLat, newLon){
+  lat = newLat;
+  lon = newLon;
+  console.log(`updated location Lat: ${lat}, lon: ${lon}`)
 }
 
-function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-
+function getDistance(lat1, lon1, lat2, lon2) {
   if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) {
     console.error("Invalid coordinates provided for distance calculation.");
     return null;
   }
 
-  const R = 6371;
-  const dLat = deg2rad(lat2 - lat1);
-  const dLon = deg2rad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const latDiff = (lat2 - lat1) * 111320; 
+  const lonDiff = (lon2 - lon1) * (111320 * Math.cos(deg2rad(lat1)));
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  return Math.sqrt(latDiff ** 2 + lonDiff ** 2);
 }
 
 function deg2rad(deg) {
@@ -41,8 +28,8 @@ function deg2rad(deg) {
 }
 
 module.exports = {
-  getServerLocation,
-  getDistanceFromLatLonInKm,
+  updateServerLocation,
+  getDistance,
   getLat: () => lat,
   getLon: () => lon  
 };

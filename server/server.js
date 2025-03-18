@@ -3,14 +3,17 @@
 const express = require("express");
 const cors = require("cors");
 
-const { getServerLocation, getDistanceFromLatLonInKm, lat, lon } = require("./helperFunctions/locationUtils");
+const { getDistance, lat, lon, updateServerLocation } = require("./helperFunctions/locationUtils");
 const { readDatabase, setMap, readUserDetails, mappedDetails } = require("./helperFunctions/databaseUtils");
 const { getUserSchedule } = require("./helperFunctions/scheduleUtils");
 
 const app = express();
 const PORT = 3000;
 
-getServerLocation();
+var serverLat; 
+var serverLon;
+
+console.log(`server manually set to: lat=${serverLat} lon=${serverLon}`);
 
 const corsOptions = {
   origin: "*",
@@ -23,23 +26,38 @@ app.use(express.json());
 
 const users = readUserDetails();
 
+app.post("/api/setLocation", (req, res) => {
+  const { lat, lon } = req.body;
+
+  if( !lat || !lon ){
+    return res.status(400).json({success: false, message: "latitude or longatude are missing" });
+  }
+
+  serverLat = lat;
+  serverLon = lon;
+
+  updateServerLocation(serverLat, serverLon);
+  console.log(`workplace location set: lat=${serverLat} lon=${serverLon}`)
+
+  res.json({success: true, message: "server location updated"});
+});
+
 app.get("/api/location", (req, res) => {
   let lat2 = parseFloat(req.query.lat2);
   let lon2 = parseFloat(req.query.lon2);
 
-  console.log(`Server location: Lat = ${lat}, Lon = ${lon}`);
-  console.log(`Device location received: Lat = ${lat2}, Lon = ${lon2}`);
-
   if (!lat2 || !lon2) {
-    return res.status(400).json({ success: false, message: "Latitude or longitude missing" });
+    return res.status(400).json({ success: false, message: "Invalid latitude or longitude received" });
   }
 
-  const distance = getDistanceFromLatLonInKm(lat, lon, lat2, lon2);
-  console.log(`Distance calculated: ${distance} km`);
+  console.log(`mobile lon=${lon2} lat=${lat2}`)
+
+  const distance = getDistance(serverLat, serverLon, lat2, lon2);
+
+  console.log(`Distance calculated: ${distance} m`);
 
   res.json({ success: true, distance });
 });
-
 
 app.get("/api/schedule", (req, res) => {
   let { colleagueID, month } = req.query;
