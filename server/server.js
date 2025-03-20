@@ -5,6 +5,8 @@ const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 
+const usersFilePath = path.join(__dirname, "users.json");
+
 const { getDistance, updateServerLocation } = require("./helperFunctions/locationUtils");
 const { readUserDetails, changeCheckedIn } = require("./helperFunctions/databaseUtils");
 const { getUserSchedule } = require("./helperFunctions/scheduleUtils");
@@ -66,6 +68,40 @@ app.get("/api/location", (req, res) => {
     res.json({success: false, distance});
   }
 });
+
+app.post("/api/checkout", (req, res) => {
+  const { userID } = req.body;
+
+  if (!userID) {
+    return res.status(400).json({ success: false, message: "User ID is required" });
+  }
+
+  fs.readFile(usersFilePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading users file:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+
+    let users = JSON.parse(data);
+    let user = users.find((u) => u.colleagueID === userID);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.checkedIn = false; 
+
+    fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), "utf8", (err) => {
+      if (err) {
+        console.error("Error writing users file:", err);
+        return res.status(500).json({ success: false, message: "Failed to update user status" });
+      }
+      console.log(`User ${userID} successfully checked out`);
+      res.json({ success: true });
+    });
+  });
+});
+
 
 app.get("/api/schedule", (req, res) => {
   let { colleagueID, month } = req.query;
