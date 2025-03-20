@@ -1,41 +1,10 @@
 //databaseUtils.js
 
 const fs = require("fs");
+const path = require("path")
 
 const colleagueIDs = [];
 const passwords = [];
-
-function readDatabase() {
-  try {
-    const data = fs.readFileSync("dataBase.txt", "utf8");
-    const lines = data.split("\n");
-
-    lines.forEach((line) => {
-      if (line.includes("colleagueID")) {
-        const colleagueID = line.split(":")[1]?.trim();
-        if (colleagueID) {
-          colleagueIDs.push(colleagueID);
-        }
-      }
-
-      if (line.includes("password:")) {
-        const password = line.split(":")[1]?.trim();
-        if (password) {
-          passwords.push(password);
-        }
-      }
-    });
-
-  } catch (err) {
-    console.error("Error reading file:", err);
-  }
-}
-
-function setMap() {
-  for (let i = 0; i < colleagueIDs.length; i++) {
-    mappedDetails.set(colleagueIDs[i], passwords[i]);
-  }
-}
 
 function readUserDetails() {
   let users = [];
@@ -49,7 +18,38 @@ function readUserDetails() {
   return users;
 }
 
+const usersFilePath = path.join(__dirname, "../users.json");
+
+function changeCheckedIn(colleagueID){
+  fs.readFile(usersFilePath, "utf8", (err,data) => {
+    if(err){
+      console.error("Error reading users file:", err);
+      return;
+    }
+
+    let users = JSON.parse(data);
+
+    let user = users.find(u => u.colleagueID === colleagueID);
+
+    if(!user){
+      console.error("User not found. ");
+      return;
+    }
+
+    user.checkedIn = true;
+
+    fs.writeFile(usersFilePath, JSON.stringify(users,null, 2), "utf8", (err) =>{
+      if(err){
+        console.error("error writing user file: ", err);
+      }
+      else{
+        console.log(`user ${colleagueID} successfully checked in`)
+      }
+    });
+  });
+}
+
 module.exports = {
-  readDatabase,
   readUserDetails,
+  changeCheckedIn
 };

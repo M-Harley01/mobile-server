@@ -8,7 +8,7 @@ var lon;
 function updateServerLocation(newLat, newLon){
   lat = newLat;
   lon = newLon;
-  console.log(`updated location Lat: ${lat}, lon: ${lon}`)
+  //console.log(`updated location Lat: ${lat}, lon: ${lon}`)
 }
 
 function getDistance(lat1, lon1, lat2, lon2) {

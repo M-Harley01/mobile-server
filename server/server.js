@@ -2,18 +2,18 @@
 
 const express = require("express");
 const cors = require("cors");
+const multer = require("multer");
+const path = require("path");
 
-const { getDistance, lat, lon, updateServerLocation } = require("./helperFunctions/locationUtils");
-const { readDatabase, setMap, readUserDetails, mappedDetails } = require("./helperFunctions/databaseUtils");
+const { getDistance, updateServerLocation } = require("./helperFunctions/locationUtils");
+const { readUserDetails, changeCheckedIn } = require("./helperFunctions/databaseUtils");
 const { getUserSchedule } = require("./helperFunctions/scheduleUtils");
 
 const app = express();
 const PORT = 3000;
 
-var serverLat; 
-var serverLon;
-
-console.log(`server manually set to: lat=${serverLat} lon=${serverLon}`);
+let serverLat = null;
+let serverLon = null;
 
 const corsOptions = {
   origin: "*",
@@ -23,40 +23,48 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded images
 
 const users = readUserDetails();
 
 app.post("/api/setLocation", (req, res) => {
   const { lat, lon } = req.body;
 
-  if( !lat || !lon ){
-    return res.status(400).json({success: false, message: "latitude or longatude are missing" });
+  if (!lat || !lon) {
+    return res.status(400).json({ success: false, message: "Latitude or longitude is missing" });
   }
 
   serverLat = lat;
   serverLon = lon;
 
   updateServerLocation(serverLat, serverLon);
-  console.log(`workplace location set: lat=${serverLat} lon=${serverLon}`)
+  console.log(`Workplace location set: lat=${serverLat}, lon=${serverLon}`);
 
-  res.json({success: true, message: "server location updated"});
+  res.json({ success: true, message: "Server location updated" });
 });
 
 app.get("/api/location", (req, res) => {
+  let userID = req.query.userID;
   let lat2 = parseFloat(req.query.lat2);
   let lon2 = parseFloat(req.query.lon2);
 
-  if (!lat2 || !lon2) {
+  if (!userID || !lat2 || !lon2) {
     return res.status(400).json({ success: false, message: "Invalid latitude or longitude received" });
   }
 
-  console.log(`mobile lon=${lon2} lat=${lat2}`)
+  console.log(`user trying to check in: ` + userID);
+  console.log(`Server Location: lat=${serverLat}, lon=${serverLon}`);
+  console.log(`Device Location: lat=${lat2}, lon=${lon2}`);
 
   const distance = getDistance(serverLat, serverLon, lat2, lon2);
-
   console.log(`Distance calculated: ${distance} m`);
 
-  res.json({ success: true, distance });
+  if(distance < 100){
+    changeCheckedIn(userID);
+    res.json({ success: true, distance });
+  }else{
+    res.json({success: false, distance});
+  }
 });
 
 app.get("/api/schedule", (req, res) => {
@@ -95,22 +103,62 @@ app.post("/api/receive", (req, res) => {
   }
 });
 
+const fs = require("fs");
+
 app.get("/api/profile", (req, res) => {
   const { colleagueID } = req.query;
-  const user = users.find(user => user.colleagueID === colleagueID);
 
-  if (user) {
-    res.json({
-      success: true,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      contactNo: user.contactNo,
-      position: user.position,
-      location: user.location
-    });
-  } else {
-    res.json({ success: false, message: "User not found" });
+  fs.readFile("users.json", "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading user data:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+
+    const users = JSON.parse(data);
+    const user = users.find(user => user.colleagueID === colleagueID);
+
+    if (user) {
+      res.json({
+        success: true,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        contactNo: user.contactNo,
+        position: user.position,
+        location: user.location,
+        checkedIn: user.checkedIn, 
+      });
+    } else {
+      res.json({ success: false, message: "User not found" });
+    }
+  });
+});
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+app.post("/api/reportIssue", upload.single("image"), (req, res) => {
+  const { colleagueID, urgency, category, description } = req.body;
+  let imagePath = null;
+
+  if (!colleagueID || !urgency || !category || !description) {
+    return res.status(400).json({ success: false, message: "Missing fields" });
   }
+
+  if (req.file) {
+    imagePath = `/uploads/${req.file.filename}`;
+  }
+
+  console.log("New issue reported: ", { colleagueID, urgency, category, description, imagePath });
+
+  res.json({ success: true, message: "Issue submitted successfully", imagePath });
 });
 
 app.listen(PORT, () => {
