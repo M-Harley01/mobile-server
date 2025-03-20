@@ -197,6 +197,25 @@ app.post("/api/reportIssue", upload.single("image"), (req, res) => {
   res.json({ success: true, message: "Issue submitted successfully", imagePath });
 });
 
+app.get("/api/colleagues", (req, res) => {
+  fs.readFile("users.json", "utf8", (err,data) =>{
+    if(err){
+      console.error("error reading user data:", err);
+      return res.status(500).json({success: false, message: "server error"});
+    }
+
+    const users = JSON.parse(data);
+
+    const colleagues = users.map(user => ({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      colleagueID: user.colleagueID
+    }));
+
+    res.json({success: true, colleagues});
+  })
+})
+
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
