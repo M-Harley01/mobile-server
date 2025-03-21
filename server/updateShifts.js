@@ -18,7 +18,7 @@ function generateSchedule(startOn = true, daysInMonth) {
     const dayStr = String(day).padStart(2, "0");
 
     schedule.push({
-      date: `${dayStr}/Jan`,
+      date: `${dayStr}`,
       time: working ? "9:00 - 17:00" : "Not Scheduled",
       type: working ? "Home Delivery" : "",
     });

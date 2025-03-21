@@ -10,6 +10,7 @@ const usersFilePath = path.join(__dirname, "users.json");
 const { getDistance, updateServerLocation } = require("./helperFunctions/locationUtils");
 const { readUserDetails, changeCheckedIn } = require("./helperFunctions/databaseUtils");
 const { getUserSchedule } = require("./helperFunctions/scheduleUtils");
+const { swapUser, swapColleague } = require("./helperFunctions/swapUtils")
 
 const app = express();
 const PORT = 3000;
@@ -226,6 +227,9 @@ app.post("/api/swapRequest", (req,res) => {
   console.log("Colleague, shift: ", swapWith);
 
   res.json({success: true, message: "Swap request recieved."})
+
+  swapUser(from, to ,swapYour);
+  swapColleague(from, to, swapWith);
 })
 
 app.listen(PORT, () => {
