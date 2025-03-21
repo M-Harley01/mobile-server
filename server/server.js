@@ -25,7 +25,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve uploaded images
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); 
 
 const users = readUserDetails();
 
@@ -214,6 +214,18 @@ app.get("/api/colleagues", (req, res) => {
 
     res.json({success: true, colleagues});
   })
+});
+
+app.post("/api/swapRequest", (req,res) => {
+  const { from, to , swapYour, swapWith } = req.body;
+
+  console.log("Swap request recieved:");
+  console.log("From: ", from);
+  console.log("To: ", to);
+  console.log("Users shift: ", swapYour);
+  console.log("Colleague, shift: ", swapWith);
+
+  res.json({success: true, message: "Swap request recieved."})
 })
 
 app.listen(PORT, () => {
