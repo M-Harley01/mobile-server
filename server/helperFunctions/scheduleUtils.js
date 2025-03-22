@@ -1,11 +1,14 @@
 //scheduleUtil.js
 
 const fs = require("fs");
+const path = require("path");
 
-const rawData = fs.readFileSync("schedule.json");
-const schedules = JSON.parse(rawData);
+const schedulePath = path.join(__dirname, "..", "schedule.json");
 
 function getUserSchedule(colleagueID, month) {
+  const rawData = fs.readFileSync(schedulePath, "utf-8");
+  const schedules = JSON.parse(rawData);
+
   const user = schedules.find(user => user.colleagueID === colleagueID);
 
   if (!user) {
