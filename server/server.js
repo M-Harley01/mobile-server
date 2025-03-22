@@ -4,13 +4,15 @@ const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
 const usersFilePath = path.join(__dirname, "users.json");
 
 const { getDistance, updateServerLocation } = require("./helperFunctions/locationUtils");
 const { readUserDetails, changeCheckedIn } = require("./helperFunctions/databaseUtils");
 const { getUserSchedule } = require("./helperFunctions/scheduleUtils");
-const { swapUser, swapColleague } = require("./helperFunctions/swapUtils")
+const { swapUser, swapColleague } = require("./helperFunctions/swapUtils");
+const { timeStamp } = require("console");
 
 const app = express();
 const PORT = 3000;
@@ -55,18 +57,14 @@ app.get("/api/location", (req, res) => {
     return res.status(400).json({ success: false, message: "Invalid latitude or longitude received" });
   }
 
-  console.log(`user trying to check in: ` + userID);
-  console.log(`Server Location: lat=${serverLat}, lon=${serverLon}`);
-  console.log(`Device Location: lat=${lat2}, lon=${lon2}`);
-
   const distance = getDistance(serverLat, serverLon, lat2, lon2);
   console.log(`Distance calculated: ${distance} m`);
 
-  if(distance < 100){
+  if (distance < 100) {
     changeCheckedIn(userID);
     res.json({ success: true, distance });
-  }else{
-    res.json({success: false, distance});
+  } else {
+    res.json({ success: false, distance });
   }
 });
 
@@ -90,19 +88,17 @@ app.post("/api/checkout", (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    user.checkedIn = false; 
+    user.checkedIn = false;
 
     fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), "utf8", (err) => {
       if (err) {
         console.error("Error writing users file:", err);
         return res.status(500).json({ success: false, message: "Failed to update user status" });
       }
-      console.log(`User ${userID} successfully checked out`);
       res.json({ success: true });
     });
   });
 });
-
 
 app.get("/api/schedule", (req, res) => {
   let { colleagueID, month } = req.query;
@@ -140,16 +136,11 @@ app.post("/api/receive", (req, res) => {
   }
 });
 
-const fs = require("fs");
-
 app.get("/api/profile", (req, res) => {
   const { colleagueID } = req.query;
 
-  fs.readFile("users.json", "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading user data:", err);
-      return res.status(500).json({ success: false, message: "Server error" });
-    }
+  fs.readFile(usersFilePath, "utf8", (err, data) => {
+    if (err) return res.status(500).json({ success: false, message: "Server error" });
 
     const users = JSON.parse(data);
     const user = users.find(user => user.colleagueID === colleagueID);
@@ -162,7 +153,8 @@ app.get("/api/profile", (req, res) => {
         contactNo: user.contactNo,
         position: user.position,
         location: user.location,
-        checkedIn: user.checkedIn, 
+        checkedIn: user.checkedIn,
+        holidays: user.holidays
       });
     } else {
       res.json({ success: false, message: "User not found" });
@@ -171,66 +163,125 @@ app.get("/api/profile", (req, res) => {
 });
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
+  destination: (req, file, cb) => cb(null, "./uploads"),
+  filename: (req, file, cb) => {
+    const id = req.body.colleagueID || "unknown";
+    const now = new Date();
+    const formattedDate = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${now.getFullYear()}`;
+    const formattedTime = `${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
+    cb(null, `issue_${id}_${formattedDate}_${formattedTime}.jpg`);
+  }
 });
 
 const upload = multer({ storage: storage });
 
 app.post("/api/reportIssue", upload.single("image"), (req, res) => {
   const { colleagueID, urgency, category, description } = req.body;
-  let imagePath = null;
+  const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
   if (!colleagueID || !urgency || !category || !description) {
     return res.status(400).json({ success: false, message: "Missing fields" });
   }
 
-  if (req.file) {
-    imagePath = `/uploads/${req.file.filename}`;
+  const now = new Date();
+  const formattedTime = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  const reportEntry = {
+    colleagueID,
+    description,
+    urgency,
+    category,
+    imagePath,
+    timestamp: formattedTime
+  };
+
+  const reportFilePath = path.join(__dirname, "report.json");
+  let reports = [];
+
+  try {
+    if (fs.existsSync(reportFilePath)) {
+      const rawData = fs.readFileSync(reportFilePath, "utf-8");
+      reports = JSON.parse(rawData);
+    }
+    reports.push(reportEntry);
+    fs.writeFileSync(reportFilePath, JSON.stringify(reports, null, 2), "utf-8");
+
+    res.json({ success: true, message: "Issue submitted successfully", imagePath });
+  } catch (error) {
+    console.error("Error saving report:", error);
+    res.status(500).json({ success: false, message: "Failed to save report" });
   }
-
-  console.log("New issue reported: ", { colleagueID, urgency, category, description, imagePath });
-
-  res.json({ success: true, message: "Issue submitted successfully", imagePath });
 });
 
+
 app.get("/api/colleagues", (req, res) => {
-  fs.readFile("users.json", "utf8", (err,data) =>{
-    if(err){
-      console.error("error reading user data:", err);
-      return res.status(500).json({success: false, message: "server error"});
-    }
+  fs.readFile(usersFilePath, "utf8", (err, data) => {
+    if (err) return res.status(500).json({ success: false, message: "Server error" });
 
     const users = JSON.parse(data);
-
     const colleagues = users.map(user => ({
       firstName: user.firstName,
       lastName: user.lastName,
       colleagueID: user.colleagueID
     }));
 
-    res.json({success: true, colleagues});
-  })
+    res.json({ success: true, colleagues });
+  });
 });
 
-app.post("/api/swapRequest", (req,res) => {
-  const { from, to , swapYour, swapWith } = req.body;
+app.post("/api/swapRequest", (req, res) => {
+  const { from, to, swapYour, swapWith } = req.body;
 
-  console.log("Swap request recieved:");
-  console.log("From: ", from);
-  console.log("To: ", to);
-  console.log("Users shift: ", swapYour);
-  console.log("Colleague, shift: ", swapWith);
-
-  res.json({success: true, message: "Swap request recieved."})
-
-  swapUser(from, to ,swapYour);
+  swapUser(from, to, swapYour);
   swapColleague(from, to, swapWith);
-})
+
+  res.json({ success: true, message: "Swap request received." });
+});
+
+app.post("/api/holidays", (req, res) => {
+  const { colleagueID, start, end } = req.body;
+
+  if (!colleagueID || !start || !end) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  const monthToNumber = {
+    January: 0, February: 1, March: 2, April: 3, May: 4, June: 5,
+    July: 6, August: 7, September: 8, October: 9, November: 10, December: 11,
+  };
+
+  try {
+    const startDate = new Date(2025, monthToNumber[start.month], parseInt(start.date));
+    const endDate = new Date(2025, monthToNumber[end.month], parseInt(end.date));
+
+    if (endDate < startDate) {
+      return res.status(400).json({ success: false, message: "End date cannot be before start date" });
+    }
+
+    const daysRequested = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    const rawData = fs.readFileSync(usersFilePath, "utf-8");
+    const users = JSON.parse(rawData);
+    const user = users.find(u => u.colleagueID === colleagueID);
+
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    if (user.holidays < daysRequested) {
+      return res.status(400).json({ success: false, message: "Not enough holidays remaining" });
+    }
+
+    user.holidays -= daysRequested;
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2), "utf-8");
+
+    console.log(`#${colleagueID} requested ${daysRequested} day(s) off`);
+    console.log(`New holiday balance: ${user.holidays} days`);
+
+    res.json({ success: true, message: `${daysRequested} holiday days deducted`, remainingHolidays: user.holidays });
+  } catch (err) {
+    console.error("Error processing holiday request:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

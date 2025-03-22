@@ -27,7 +27,6 @@ function swapUser(from, to, swapYour) {
     return;
   }
 
-  // Log both users’ shift info before swap
   console.log(`#${from} shift on ${month} ${date}:`);
   console.log(`Time: ${userShifts[userIndex].time}`);
   console.log(`Type: ${userShifts[userIndex].type}`);
@@ -38,13 +37,11 @@ function swapUser(from, to, swapYour) {
   console.log(`Type: ${colleagueShifts[colleagueIndex].type}`);
   console.log("");
 
-  // Perform the swap
-  const temp = { ...userShifts[userIndex] }; // Copy user shift
+  const temp = { ...userShifts[userIndex] }; 
 
   userShifts[userIndex] = { ...colleagueShifts[colleagueIndex] };
   colleagueShifts[colleagueIndex] = temp;
 
-  // Save back to file
   fs.writeFileSync(schedulePath, JSON.stringify(schedules, null, 2), "utf-8");
   console.log(`🔁 Shift on ${month} ${date} swapped between #${from} and #${to}`);
 }
@@ -54,7 +51,7 @@ function swapColleague(from, to, swapWith){
   const colleague = schedules.find(u => u.colleagueID === `#${to}`);
 
   if (!user || !colleague) {
-    console.log("❌ One or both users not found");
+    console.log("One or both users not found");
     return;
   }
 
@@ -67,30 +64,27 @@ function swapColleague(from, to, swapWith){
   const colleagueIndex = colleagueShifts?.findIndex(s => s.date === date);
 
   if (userIndex === -1 || colleagueIndex === -1) {
-    console.log(`❌ One or both shifts not found for ${month} ${date}`);
+    console.log(`One or both shifts not found for ${month} ${date}`);
     return;
   }
 
-  // Log both users’ shift info before swap
-  console.log(`📋 #${from} shift on ${month} ${date}:`);
+  console.log(`#${from} shift on ${month} ${date}:`);
   console.log(`Time: ${userShifts[userIndex].time}`);
   console.log(`Type: ${userShifts[userIndex].type}`);
   console.log("");
 
-  console.log(`📋 #${to} shift on ${month} ${date}:`);
+  console.log(`#${to} shift on ${month} ${date}:`);
   console.log(`Time: ${colleagueShifts[colleagueIndex].time}`);
   console.log(`Type: ${colleagueShifts[colleagueIndex].type}`);
   console.log("");
 
-  // Perform the swap
-  const temp = { ...userShifts[userIndex] }; // Copy user shift
+  const temp = { ...userShifts[userIndex] }; 
 
   userShifts[userIndex] = { ...colleagueShifts[colleagueIndex] };
   colleagueShifts[colleagueIndex] = temp;
 
-  // Save back to file
   fs.writeFileSync(schedulePath, JSON.stringify(schedules, null, 2), "utf-8");
-  console.log(`🔁 Shift on ${month} ${date} swapped between #${from} and #${to}`);
+  console.log(`Shift on ${month} ${date} swapped between #${from} and #${to}`);
 }
 
 module.exports = {
