@@ -1,29 +1,30 @@
-//scheduleUtil.js
-
-const fs = require("fs");
 const path = require("path");
+const { decryptJSONFromFile } = require("./encryptionUtils");
 
-const schedulePath = path.join(__dirname, "..", "schedule.json");
+const scheduleFilePath = path.join(__dirname, "../schedule.json");
 
 function getUserSchedule(colleagueID, month) {
-  const rawData = fs.readFileSync(schedulePath, "utf-8");
-  const schedules = JSON.parse(rawData);
+  try {
+    const schedules = decryptJSONFromFile(scheduleFilePath);
+    const userSchedule = schedules.find((entry) => entry.colleagueID === colleagueID);
 
-  const user = schedules.find(user => user.colleagueID === colleagueID);
+    if (!userSchedule || !userSchedule[month]) {
+      return null;
+    }
 
-  if (!user) {
-    console.log(`Couldn't find user ID`);
+    // Add month info to each entry for frontend compatibility
+    const withMonth = userSchedule[month].map((entry) => ({
+      ...entry,
+      month,
+    }));
+
+    return withMonth;
+  } catch (err) {
+    console.error("Error reading schedule data:", err);
     return null;
   }
-
-  if (!user[month]) {
-    console.log(`Couldn't find month specified`);
-    return null;
-  }
-
-  return user[month];
 }
 
 module.exports = {
-  getUserSchedule
+  getUserSchedule,
 };

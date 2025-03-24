@@ -1,52 +1,38 @@
-//databaseUtils.js
+// server/helperFunctions/databaseUtils.js
 
 const fs = require("fs");
-const path = require("path")
-
-const colleagueIDs = [];
-const passwords = [];
-
-function readUserDetails() {
-  let users = [];
-  try {
-    const rawData = fs.readFileSync("users.json");
-    users = JSON.parse(rawData);
-    console.log("User data successfully gathered");
-  } catch (err) {
-    console.log("User data unable to be loaded", err);
-  }
-  return users;
-}
+const path = require("path");
+const { decryptJSONFromFile, encryptJSONToFile } = require("./encryptionUtils");
 
 const usersFilePath = path.join(__dirname, "../users.json");
 
-function changeCheckedIn(colleagueID){
-  fs.readFile(usersFilePath, "utf8", (err,data) => {
-    if(err){
-      console.error("Error reading users file:", err);
-      return;
-    }
+function readUserDetails() {
+  try {
+    const users = decryptJSONFromFile(usersFilePath);
+    console.log("User data successfully gathered");
+    return users;
+  } catch (err) {
+    console.log("User data unable to be loaded", err);
+    return [];
+  }
+}
 
-    let users = JSON.parse(data);
+function changeCheckedIn(colleagueID) {
+  try {
+    const users = decryptJSONFromFile(usersFilePath);
+    const user = users.find((u) => u.colleagueID === colleagueID);
 
-    let user = users.find(u => u.colleagueID === colleagueID);
-
-    if(!user){
-      console.error("User not found. ");
+    if (!user) {
+      console.error("User not found.");
       return;
     }
 
     user.checkedIn = true;
-
-    fs.writeFile(usersFilePath, JSON.stringify(users,null, 2), "utf8", (err) =>{
-      if(err){
-        console.error("error writing user file: ", err);
-      }
-      else{
-        console.log(`user ${colleagueID} successfully checked in`)
-      }
-    });
-  });
+    encryptJSONToFile(usersFilePath, users);
+    console.log(`User ${colleagueID} successfully checked in`);
+  } catch (err) {
+    console.error("Error updating check-in status:", err);
+  }
 }
 
 module.exports = {
