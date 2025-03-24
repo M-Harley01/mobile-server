@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const { encryptJSONToFile } = require("../server/helperFunctions/encryptionUtils");
 
-const filesToEncrypt = ["users.json", "report.json", "schedule.json"];
+const filesToEncrypt = ["schedule.json"];
 
 filesToEncrypt.forEach((filename) => {
   const filePath = path.join(__dirname, "../server", filename);
