@@ -3,7 +3,7 @@ const crypto = require("crypto");
 
 const ALGORITHM = "aes-256-cbc";
 const KEY = crypto.createHash("sha256").update("your-strong-secret-key").digest("base64").substr(0, 32);
-const IV = crypto.randomBytes(16); // Random IV
+const IV = crypto.randomBytes(16); 
 
 function encryptJSONToFile(filePath, jsonData) {
   const data = JSON.stringify(jsonData, null, 2);
